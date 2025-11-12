@@ -125,9 +125,6 @@ target_include_directories(${MAIN_TARGET}
     PRIVATE
         src
 )
-# add_executable(${MAIN_TARGET}
-#     src/main.c
-# )
 
 # Links. Add all libraries that application is using. It must at least use the pico_stdlib
 # In addition, for the course project you are using at least:
