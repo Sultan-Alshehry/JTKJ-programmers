@@ -123,7 +123,7 @@ add_executable(${MAIN_TARGET}
 
 target_include_directories(${MAIN_TARGET}
     PRIVATE
-        src
+        include
 )
 
 # Links. Add all libraries that application is using. It must at least use the pico_stdlib
