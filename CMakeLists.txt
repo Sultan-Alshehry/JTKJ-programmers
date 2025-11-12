@@ -111,13 +111,11 @@ add_subdirectory(examples/hello_serial_bidirectional_client)
 # Add the source files to be compiled
 # If you add the headers in a different directory, you should use: target_include_directories
 
-
-file(GLOB_RECURSE SRC_FILES
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-)
-
 add_executable(${MAIN_TARGET}
-    ${SRC_FILES}
+    src/main.c
+    src/state.c
+    src/interface.c
+    src/buttons.c
 )
 
 target_include_directories(${MAIN_TARGET}
