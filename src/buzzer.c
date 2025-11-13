@@ -12,7 +12,7 @@
 QueueHandle_t queue;
 
 int melody[] = {1318, 1174, 1318, 1174, 1318, 880, 988, 1046, 988, 880};
-float durations[] = {0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
+float durations[] = {250, 250, 250, 250, 250, 250, 250, 250, 250, 250};
 
 void play_sound(sound music){
     xQueueSend(queue, &music, portMAX_DELAY);
@@ -25,7 +25,8 @@ void buzzer_task(void *arg) {
     init_buzzer();
     printf("Initializing buzzer\n");
     queue = xQueueCreate(5,sizeof(sound));
-    
+
+    play_sound(MESSAGE_RECEIVED);
 
     while(1){
 
@@ -34,8 +35,8 @@ void buzzer_task(void *arg) {
             switch (nextSound) {
                 case MESSAGE_RECEIVED:
                     for (int i=0 ; i<10; i++){
-                        buzzer_play_tone (melody[i], 50);
-                        vTaskDelay(pdMS_TO_TICKS(durations[i]));
+                        buzzer_play_tone (melody[i], durations[i]);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                     }
                     break;
                 case MESSAGE_SENT:
