@@ -15,7 +15,7 @@ int melody[] = {1318, 1174, 1318, 1174, 1318, 880, 988, 1046, 988, 880};
 float durations[] = {0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
 
 void play_sound(sound music){
-    QueueSend(queue, music, portMAX_DELAY);
+    xQueueSend(queue, &music, portMAX_DELAY);
 }
 
 void buzzer_task(void *arg) {
@@ -24,7 +24,7 @@ void buzzer_task(void *arg) {
     //Initialize the buzzer
     init_buzzer();
     printf("Initializing buzzer\n");
-    quene = xQueueCreate(5,sizeof(sound));
+    queue = xQueueCreate(5,sizeof(sound));
     
 
     while(1){
