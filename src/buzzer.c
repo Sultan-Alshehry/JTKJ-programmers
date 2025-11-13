@@ -1,7 +1,11 @@
-#include "pico/stdlib.h"
-#include "hardware/pwm.h"
+#include <stdio.h>
 
-#define BUZZER_PIN 15
+#include <pico/stdlib.h>
+
+#include <FreeRTOS.h>
+#include <task.h>
+
+#include "tkjhat/sdk.h"
 
 void buzzer_task(void *arg) {
     (void)arg;
@@ -11,7 +15,7 @@ void buzzer_task(void *arg) {
     printf("Initializing buzzer\n");
 
     while(1){
-        buzzer_play_tone (440, 500);
+        buzzer_play_tone (440, 50);
         vTaskDelay(pdMS_TO_TICKS(6000));
     }
 }

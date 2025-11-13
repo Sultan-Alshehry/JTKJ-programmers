@@ -36,7 +36,7 @@ int main() {
     init_hat_sdk();
     sleep_ms(300); //Wait some time so initialization of USB and hat is done.
 
-    TaskHandle_t myExampleTask,buzzerTask = NULL;
+    TaskHandle_t myExampleTask, buzzerTask = NULL;
 
     // Create the tasks with xTaskCreate
     BaseType_t result = xTaskCreate(example_task,       // (en) Task function
@@ -51,12 +51,12 @@ int main() {
         return 0;
     }
 
-    result = xTaskCreate(buzzerTask,   // (en) Task function
+    result = xTaskCreate(buzzer_task,   // (en) Task function
             "buzzer",                   // (en) Name of the task 
                 1024,                   // (en) Size of the stack for this task (in words). Generally 1024 or 2048
                 NULL,                   // (en) Arguments of the task 
                 2,                      // (en) Priority of this task
-                &buzzer_task);
+                &buzzerTask);
 
     // Start the scheduler (never returns)
     vTaskStartScheduler();
