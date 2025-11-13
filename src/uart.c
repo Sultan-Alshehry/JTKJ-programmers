@@ -43,7 +43,7 @@ static const char *hellotext_debug[] = {".... ", // H
 // \n"
 
 static volatile uint8_t button_pressed, debug_pressed;
-static void btn_fxn(uint gpio, uint32_t eventMask) {
+void btn_fxn(uint gpio, uint32_t eventMask) {
   if (gpio == BUTTON1)
     button_pressed = true;
   else if (gpio == BUTTON2)
@@ -51,7 +51,7 @@ static void btn_fxn(uint gpio, uint32_t eventMask) {
   toggle_led();
 }
 
-static void print_task(void *arg) {
+void print_task(void *arg) {
   (void)arg;
 
   while (1) {
@@ -72,7 +72,7 @@ static void print_task(void *arg) {
   }
 }
 
-static void receive_task(void *arg) {
+void receive_task(void *arg) {
   (void)arg;
   char line[INPUT_BUFFER_SIZE];
   size_t index = 0;
