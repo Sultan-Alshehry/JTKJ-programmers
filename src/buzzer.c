@@ -34,14 +34,18 @@ void buzzer_task(void *arg) {
         if (xQueueReceive(queue, &nextSound, portMAX_DELAY) == pdPASS) {
             switch (nextSound) {
                 case MESSAGE_RECEIVED:
-                    for (int i=0 ; i<10; i++){
-                        buzzer_play_tone (melody[i], durations[i]);
-                        vTaskDelay(pdMS_TO_TICKS(200));
-                    }
+                    buzzer_play_tone (400, 50);
+                    vTaskDelay(pdMS_TO_TICKS(100));
+                    buzzer_play_tone (600, 200);
                     break;
                 case MESSAGE_SENT:
 
                     break;
+                case MUSIC:
+                    for (int i=0 ; i<10; i++){
+                        buzzer_play_tone (melody[i], durations[i]);
+                        vTaskDelay(pdMS_TO_TICKS(200));
+                    }
                 default:
                     break;
             }
