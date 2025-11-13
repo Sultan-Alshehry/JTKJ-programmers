@@ -9,6 +9,7 @@
 #include <task.h>
 
 #include "tkjhat/sdk.h"
+#include "buzzer.h"
 
 // Default stack size for the tasks. It can be reduced to 1024 if task is not using lot of memory.
 #define DEFAULT_STACK_SIZE 2048 
@@ -35,7 +36,8 @@ int main() {
     init_hat_sdk();
     sleep_ms(300); //Wait some time so initialization of USB and hat is done.
 
-    TaskHandle_t myExampleTask = NULL;
+    TaskHandle_t myExampleTask,buzzerTask = NULL;
+
     // Create the tasks with xTaskCreate
     BaseType_t result = xTaskCreate(example_task,       // (en) Task function
                 "example",              // (en) Name of the task 
@@ -48,6 +50,13 @@ int main() {
         printf("Example Task creation failed\n");
         return 0;
     }
+
+    result = xTaskCreate(buzzerTask,   // (en) Task function
+            "buzzer",                   // (en) Name of the task 
+                1024,                   // (en) Size of the stack for this task (in words). Generally 1024 or 2048
+                NULL,                   // (en) Arguments of the task 
+                2,                      // (en) Priority of this task
+                &buzzer_task);
 
     // Start the scheduler (never returns)
     vTaskStartScheduler();
