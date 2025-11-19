@@ -48,22 +48,9 @@ int main() {
 
   TaskHandle_t myExampleTask, displayTask, buzzerTask, printTask, receiveTask;
   // Create the tasks with xTaskCreate
-  BaseType_t result = xTaskCreate(
-      example_task,       // (en) Task function
-      "example",          // (en) Name of the task
-      DEFAULT_STACK_SIZE, // (en) Size of the stack for this task (in words).
-                          // Generally 1024 or 2048
-      NULL,               // (en) Arguments of the task
-      2,                  // (en) Priority of this task
-      &myExampleTask);    // (en) A handle to control the execution of this task
-
-  if (result != pdPASS) {
-    printf("Example Task creation failed\n");
-    return 0;
-  }
 
   // Buzzer task
-  result = xTaskCreate(buzzer_task, // (en) Task function
+  BaseType_t result = xTaskCreate(buzzer_task, // (en) Task function
                        "buzzer",    // (en) Name of the task
                        1024, // (en) Size of the stack for this task (in words).
                              // Generally 1024 or 2048
