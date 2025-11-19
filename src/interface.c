@@ -77,8 +77,8 @@ static void display_menu() {
 
 static void display_chat() {
     clear_display();
-    ssd1306_draw_string(get_display(), 0, 0, TEXT_SCALE, "abc");
-    ssd1306_draw_empty_square(get_display(), 0, 50, 128, 30);
+    ssd1306_draw_string(get_display(), 0, 0, 1, "abc");
+    ssd1306_draw_empty_square(get_display(), 0, 50, 127, 13);
     ssd1306_show(get_display());
 }
 
