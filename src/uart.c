@@ -16,9 +16,9 @@
 #define INPUT_BUFFER_SIZE 256
 
 void send_message() {
-  printf("%s", state.currentMessage);
-  strcpy(state.messageHistory[state.messageHistorySize].message, state.currentMessage);
-  state.currentMessage[0] = 0;
+  printf("%s", g_state.currentMessage);
+  strcpy(g_state.messageHistory[g_state.messageHistorySize].message, g_state.currentMessage);
+  g_state.currentMessage[0] = 0;
 }
 
 void receive_task(void *arg) {
