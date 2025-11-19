@@ -67,19 +67,19 @@ int main() {
     return 0;
   }
 
-  result = xTaskCreate(print_task, "display", DEFAULT_STACK_SIZE, NULL, 2,
+  result = xTaskCreate(print_task, "printTask", DEFAULT_STACK_SIZE, NULL, 2,
                        &printTask);
 
   if (result != pdPASS) {
-    printf("Display Task creation failed \n");
+    printf("Print Task creation failed \n");
     return 0;
   }
 
-  result = xTaskCreate(receive_task, "display", DEFAULT_STACK_SIZE, NULL, 2,
+  result = xTaskCreate(receive_task, "receiveTask", DEFAULT_STACK_SIZE, NULL, 2,
                        &receiveTask);
 
   if (result != pdPASS) {
-    printf("Display Task creation failed \n");
+    printf("Receive Task creation failed \n");
     return 0;
   }
   // Button task
