@@ -1,7 +1,6 @@
 
+#include "state.h"
 #include "uart.h"
-
-#include <string.h>
 #include <pico/stdlib.h>
 #include <stdio.h>
 
@@ -9,15 +8,14 @@
 #include <task.h>
 
 #include "tkjhat/sdk.h"
-#include "state.h"
 
 #define DEFAULT_STACK_SIZE 2048
 
 #define INPUT_BUFFER_SIZE 256
 
-void send_message() {
+void print_task(arg) {
   printf("%s", state.currentMessage);
-  strcpy(state.messageHistory[state.messageHistorySize].message, state.currentMessage);
+  state.messageHistory[state.messageHistorySize] = state.currentMessage;
   state.currentMessage[0] = 0;
 }
 

@@ -14,7 +14,13 @@
 #define MOTION_MAGNITUDE 100
 #define MOTION_STILL 50
 
-static void addCharToMessage(char character);
+
+static void add_char_to_message(char character) {
+    state.currentMessage[state.currentMessageSize] = character;
+    state.currentMessageSize++;
+    state.currentMessage[state.currentMessageSize] = -1;
+    update_interface();
+}
 
 void imu_task(void *pvParameters) {
     (void)pvParameters;
@@ -54,11 +60,11 @@ void imu_task(void *pvParameters) {
                 // Check if a movememnt was detected and if its longer than MOTION_TIME_MS
                 if(motion_time[0] != 0 && now - motion_time[0] >= pdMS_TO_TICKS(MOTION_TIME_MS)) {
                     if(command[0] == 1) {
-                        addCharToMessage('.');
+                        add_char_to_message('.');
                         play_sound(DOT_SOUND);
                     }
                     else {
-                        addCharToMessage('-');
+                        add_char_to_message('-');
                         play_sound(LINE_SOUND);
                     }
                 }
@@ -78,7 +84,7 @@ void imu_task(void *pvParameters) {
                     // Check if a movememnt was detected and if its longer than MOTION_TIME_MS
                     if(motion_time[1] != 0 && now - motion_time[1] >= pdMS_TO_TICKS(MOTION_TIME_MS)) {
                         if(command[1] == 2) {
-                            addCharToMessage(' ');
+                            add_char_to_message(' ');
                         }
                         else {
                             //TODO: Send message
@@ -93,11 +99,4 @@ void imu_task(void *pvParameters) {
         }
         vTaskDelay(pdMS_TO_TICKS(250));
     }
-}
-
-static void addCharToMessage(char character) {
-    state.currentMessage[state.currentMessageSize] = character;
-    state.currentMessageSize++;
-    state.currentMessage[state.currentMessageSize] = 0;
-    update_interface();
 }
