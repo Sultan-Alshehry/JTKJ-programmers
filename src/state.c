@@ -11,7 +11,6 @@ void state_init() {
     //state_mutex = xSemaphoreCreateMutex();
     state.status = MAIN_MENU;
     state.messageHistorySize = 0;
-    state.currentMessage.sender = 0;
 }
 
 

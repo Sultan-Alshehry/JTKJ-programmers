@@ -87,7 +87,7 @@ static void display_chat() {
         }
     }
     ssd1306_draw_empty_square(get_display(), 0, 50, 127, 13);
-    ssd1306_draw_string(get_display(), 0, 52, 1, state.currentMessage.message);
+    ssd1306_draw_string(get_display(), 0, 52, 1, state.currentMessage);
     ssd1306_show(get_display());
 }
 

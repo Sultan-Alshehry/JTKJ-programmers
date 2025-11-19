@@ -2,5 +2,5 @@
 #include <pico/stdlib.h>
 
 void btn_fxn(uint gpio, uint32_t eventMask);
-void print_task(void *arg);
+void send_message();
 void receive_task(void *arg);

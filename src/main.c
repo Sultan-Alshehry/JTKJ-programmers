@@ -47,7 +47,7 @@ int main() {
 
   sleep_ms(300); // Wait some time so initialization of USB and hat is done.
 
-  TaskHandle_t displayTask, buzzerTask, printTask, receiveTask, imuTask;
+  TaskHandle_t displayTask, buzzerTask, receiveTask, imuTask;
   // Create the tasks with xTaskCreate
 
   // Buzzer task
@@ -65,14 +65,6 @@ int main() {
 
   if (result != pdPASS) {
     printf("Display Task creation failed \n");
-    return 0;
-  }
-
-  result = xTaskCreate(print_task, "printTask", DEFAULT_STACK_SIZE, NULL, 2,
-                       &printTask);
-
-  if (result != pdPASS) {
-    printf("Print Task creation failed \n");
     return 0;
   }
 
