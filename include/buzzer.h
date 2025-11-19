@@ -1,9 +1,9 @@
 typedef enum {
     MESSAGE_RECEIVED,
     MESSAGE_SENT,
-    JEEEEEE,
     MUSIC,
-    WOOOOOHOOOOOO
+    DOT_SOUND,
+    LINE_SOUND
 } Sound;
 
 void buzzer_task(void *arg);

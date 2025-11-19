@@ -7,6 +7,7 @@
 #include "tkjhat/sdk.h"
 #include "buzzer.h"
 #include "state.h"
+#include "interface.h"
 
 #define BUFFER_SIZE 100
 #define MOTION_TIME_MS 100
@@ -52,7 +53,14 @@ void imu_task(void *pvParameters) {
 
                 // Check if a movememnt was detected and if its longer than MOTION_TIME_MS
                 if(motion_time[0] != 0 && now - motion_time[0] >= pdMS_TO_TICKS(MOTION_TIME_MS)) {
-                    addCharToMessage(command[0] == 1 ? '-' : '.');
+                    if(command[0] == 1) {
+                        addCharToMessage('.');
+                        play_sound(DOT_SOUND);
+                    }
+                    else {
+                        addCharToMessage('-');
+                        play_sound(LINE_SOUND);
+                    }
                 }
                 motion_time[0] = 0;
 
@@ -69,7 +77,7 @@ void imu_task(void *pvParameters) {
 
                     // Check if a movememnt was detected and if its longer than MOTION_TIME_MS
                     if(motion_time[1] != 0 && now - motion_time[1] >= pdMS_TO_TICKS(MOTION_TIME_MS)) {
-                        if(command[1] == 1) {
+                        if(command[1] == 2) {
                             addCharToMessage(' ');
                         }
                         else {
@@ -91,4 +99,5 @@ static void addCharToMessage(char character) {
     state.currentMessage.message[state.currentMessage.message_size] = character;
     state.currentMessage.message_size++;
     state.currentMessage.message[state.currentMessage.message_size] = 0;
+    update_interface();
 }
