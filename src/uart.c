@@ -1,6 +1,6 @@
-
-#include "state.h"
 #include "uart.h"
+
+#include <string.h>
 #include <pico/stdlib.h>
 #include <stdio.h>
 
@@ -8,6 +8,7 @@
 #include <task.h>
 
 #include "tkjhat/sdk.h"
+#include "state.h"
 
 #define DEFAULT_STACK_SIZE 2048
 
