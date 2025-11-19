@@ -3,3 +3,5 @@
 void display_task(void *arg);
 
 void button_press(uint8_t button);
+
+void update_interface();

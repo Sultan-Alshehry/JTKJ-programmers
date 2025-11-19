@@ -48,6 +48,12 @@ void buzzer_task(void *arg) {
                         buzzer_play_tone (melody[i], durations[i]);
                         vTaskDelay(pdMS_TO_TICKS(200));
                     }
+                    break;
+                case DOT_SOUND:
+                    buzzer_play_tone (800, 50);
+                    break;
+                case LINE_SOUND:
+                    buzzer_play_tone (500, 200);
                 default:
                     break;
             }
