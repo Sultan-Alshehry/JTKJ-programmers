@@ -14,8 +14,8 @@ QueueHandle_t queue;
 int melody[] = {1318, 1174, 1318, 1174, 1318, 880, 988, 1046, 988, 880};
 float durations[] = {250, 250, 250, 250, 250, 250, 250, 250, 250, 250};
 
-void play_sound(sound music){
-    xQueueSend(queue, &music, portMAX_DELAY);
+void play_sound(Sound sound){
+    xQueueSend(queue, &sound, portMAX_DELAY);
 }
 
 void buzzer_task(void *arg) {
@@ -24,13 +24,13 @@ void buzzer_task(void *arg) {
     //Initialize the buzzer
     init_buzzer();
     printf("Initializing buzzer\n");
-    queue = xQueueCreate(5,sizeof(sound));
+    queue = xQueueCreate(5,sizeof(Sound));
 
     play_sound(MESSAGE_RECEIVED);
 
     while(1){
 
-        sound nextSound;
+        Sound nextSound;
         if (xQueueReceive(queue, &nextSound, portMAX_DELAY) == pdPASS) {
             switch (nextSound) {
                 case MESSAGE_RECEIVED:

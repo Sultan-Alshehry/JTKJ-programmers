@@ -3,27 +3,28 @@
 
 #include "state.h"
 
-state g_state;
+State state;
 
 static SemaphoreHandle_t state_mutex = NULL;
 
 void state_init() {
     //state_mutex = xSemaphoreCreateMutex();
-    g_state.g_status = MAIN_MENU;
-    g_state.messageHistorySize = 0;
+    state.status = MAIN_MENU;
+    state.messageHistorySize = 0;
+    state.currentMessage.sender = 0;
 }
 
 
-void set_status(status new_status) {
+void set_status(Status new_status) {
     //xSemaphoreTake(state_mutex, portMAX_DELAY);
-    g_state.g_status = new_status;
+    state.status = new_status;
     //xSemaphoreGive(state_mutex);
 }
 
-status get_status() {
-    status current_status;
+Status get_status() {
+    Status current_status;
     //xSemaphoreTake(state_mutex, portMAX_DELAY);
-    current_status = g_state.g_status;
+    current_status = state.status;
     //xSemaphoreGive(state_mutex);
     return current_status;
 }

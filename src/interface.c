@@ -15,8 +15,9 @@
 #define DEFAULT_I2C_SCL_PIN   13
 
 #define TEXT_X                 8
-#define TEXT_SELECTED_X       36
+#define TEXT_SELECTED_X        36
 #define TEXT_Y_MUT             16
+#define TEXT_SMALL_Y_MUT       8
 #define TEXT_SCALE             2
 
 static char menu[3][12] = {

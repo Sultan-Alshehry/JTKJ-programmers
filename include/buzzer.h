@@ -4,7 +4,7 @@ typedef enum {
     JEEEEEE,
     MUSIC,
     WOOOOOHOOOOOO
-} sound;
+} Sound;
 
 void buzzer_task(void *arg);
-void play_sound(sound music);
+void play_sound(Sound sound);

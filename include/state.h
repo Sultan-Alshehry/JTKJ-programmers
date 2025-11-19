@@ -11,7 +11,7 @@ typedef enum {
     MAIN_MENU,
     UART,
     WIFI
-} status;
+} Status;
 
 typedef struct {
     uint8_t sender;
@@ -20,19 +20,19 @@ typedef struct {
 } Message;
 
 typedef struct {
-    status g_status;
+    Status status;
     Message currentMessage;
     Message messageHistory[MSG_LIST_SIZE];
     int messageHistorySize;
-} state;
+} State;
 
 // Global variable for the state
-extern state g_state;
+extern State state;
 
 void state_init();
 
-void set_status(status new_status);
+void set_status(Status new_status);
 
-status get_status();
+Status get_status();
 
 #endif

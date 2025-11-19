@@ -21,10 +21,6 @@
 // using lot of memory.
 #define DEFAULT_STACK_SIZE 2048
 
-// Add here necessary states
-enum state { IDLE = 1 };
-enum state programState = IDLE;
-
 static void example_task(void *arg) {
   (void)arg;
 
