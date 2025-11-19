@@ -96,8 +96,8 @@ void imu_task(void *pvParameters) {
 }
 
 static void addCharToMessage(char character) {
-    state.currentMessage[state.currentMessage_size] = character;
-    state.currentMessage_size++;
-    state.currentMessage[state.currentMessage_size] = 0;
+    state.currentMessage[state.currentMessageSize] = character;
+    state.currentMessageSize++;
+    state.currentMessage[state.currentMessageSize] = 0;
     update_interface();
 }
