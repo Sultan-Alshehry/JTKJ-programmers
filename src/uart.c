@@ -1,4 +1,5 @@
 
+#include "state.h"
 #include "uart.h"
 #include <pico/stdlib.h>
 #include <stdio.h>
@@ -12,64 +13,10 @@
 
 #define INPUT_BUFFER_SIZE 256
 
-static const char *hellotext[] = {".... ", // H
-                                  ". ",    // E
-                                  ".-.. ", // L
-                                  ".-.. ", // L
-                                  "---  ", // O  (two spaces: end of word)
-                                  ".-- ",  // W
-                                  "--- ",  // O
-                                  ".-. ",  // R
-                                  ".-.. ", // L
-                                  "-..  ", // D  (two spaces end of text)
-                                  "\n",    NULL};
-
-static const char *hellotext_debug[] = {".... ", // H
-                                        ". ",    // E
-                                        ".-.. ", // L
-                                        ".-.. ", // L
-                                        "---  ", // O  (two spaces: end of word)
-                                        "__Some debug goes here__",
-                                        ".-- ",  // W
-                                        "--- ",  // O
-                                        ".-. ",  // R
-                                        ".-.. ", // L
-                                        "-..  ", // D  (two spaces end of text)
-                                        "\n",
-                                        NULL};
-
-// Alternative using just a string
-// static const char hellotext[] = ".... . .-.. .-.. ---  .-- --- .-. .-.. -..
-// \n"
-
-static volatile uint8_t button_pressed, debug_pressed;
-void btn_fxn(uint gpio, uint32_t eventMask) {
-  if (gpio == BUTTON1)
-    button_pressed = true;
-  else if (gpio == BUTTON2)
-    debug_pressed = true;
-  toggle_led();
-}
-
-void print_task(void *arg) {
-  (void)arg;
-
-  while (1) {
-
-    if (button_pressed) {
-      for (int i = 0; hellotext[i] != NULL; i++) {
-        printf("%s", hellotext[i]);
-      }
-      button_pressed = false;
-    }
-    if (debug_pressed) {
-      for (int i = 0; hellotext_debug[i] != NULL; i++) {
-        printf("%s", hellotext_debug[i]);
-      }
-      debug_pressed = false;
-    }
-    vTaskDelay(pdMS_TO_TICKS(200));
-  }
+void print_task(arg) {
+  printf("%s", state.currentMessage);
+  state.messageHistory[state.messageHistorySize] = state.currentMessage;
+  state.currentMessage[0] = 0;
 }
 
 void receive_task(void *arg) {

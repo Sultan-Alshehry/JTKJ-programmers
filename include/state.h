@@ -21,7 +21,8 @@ typedef struct {
 
 typedef struct {
     Status status;
-    Message currentMessage;
+    char currentMessage[MSG_BUFFER_SIZE];
+    int currentMessageSize;
     Message messageHistory[MSG_LIST_SIZE];
     int messageHistorySize;
 } State;
