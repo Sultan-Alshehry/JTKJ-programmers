@@ -7,6 +7,7 @@
 
 #include "tkjhat/sdk.h"
 #include "interface.h"
+#include "buttons.h"
 #include "state.h"
 #include "buzzer.h"
 
@@ -35,9 +36,11 @@ void display_task(void *arg) {
     (void)arg;
 
     init_display();
+    button_init();
     printf("Initializing display\n");
 
     while(1) {
+        button_check();
         if(update) {
             update = false;
             switch(get_status()) {

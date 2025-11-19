@@ -82,14 +82,6 @@ int main() {
     printf("Receive Task creation failed \n");
     return 0;
   }
-  // Button task
-  result = xTaskCreate(button_task, "button", DEFAULT_STACK_SIZE, NULL, 1,
-                       &displayTask);
-
-  if (result != pdPASS) {
-    printf("Button Task creation failed \n");
-    return 0;
-  }
 
   // Start the scheduler (never returns)
   vTaskStartScheduler();

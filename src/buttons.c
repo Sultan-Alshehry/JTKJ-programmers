@@ -13,7 +13,6 @@
 
 #define BUTTONS            2
 
-#define BTN_TASK_DELAY     20
 #define BTN_HOLD_MS 200
 
 static SemaphoreHandle_t button_sem[BUTTONS];
@@ -26,7 +25,7 @@ void button_init() {
         button_sem[i] = xSemaphoreCreateBinary();
     }
 
-      gpio_set_irq_enabled_with_callback(SW1_PIN, GPIO_IRQ_EDGE_RISE, true, &button_isr);
+    gpio_set_irq_enabled_with_callback(SW1_PIN, GPIO_IRQ_EDGE_RISE, true, &button_isr);
     gpio_set_irq_enabled_with_callback(SW2_PIN, GPIO_IRQ_EDGE_RISE, true, &button_isr);
 
 }
@@ -48,24 +47,16 @@ void button_isr(unsigned int gpio, long unsigned int events) {
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-void button_task(void *arg) {
-    (void)arg;
-    button_init();
+void button_check() {
+    for(int i = 0; i < BUTTONS; i++) {
+        // Count holding the button as 1 press
+        if (xSemaphoreTake(button_sem[i], 0) == pdTRUE) {
+            TickType_t now = xTaskGetTickCount();
+            if (now - last_press[i] > pdMS_TO_TICKS(BTN_HOLD_MS)) {
+                button_press(i);
+                last_press[i] = now;
+            }
+        } 
 
-    while (1) {
-        for(int i = 0; i < BUTTONS; i++) {
-            // Count holding the button as 1 press
-
-            if (xSemaphoreTake(button_sem[i], 0) == pdTRUE) {
-                TickType_t now = xTaskGetTickCount();
-                if (now - last_press[i] > pdMS_TO_TICKS(BTN_HOLD_MS)) {
-                    button_press(i);
-                    last_press[i] = now;
-                }
-            } 
-
-        }
-
-        vTaskDelay(pdMS_TO_TICKS(BTN_TASK_DELAY));
     }
 }

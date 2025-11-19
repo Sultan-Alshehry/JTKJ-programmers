@@ -1,1 +1,2 @@
-void button_task(void *arg);
+void button_check();
+void button_init();
