@@ -14,7 +14,8 @@ typedef enum {
 } Status;
 
 typedef struct {
-    uint8_t sender;
+    // 0 you 1 other person
+    bool sender;
     int message_size;
     char message[MSG_BUFFER_SIZE];
 } Message;

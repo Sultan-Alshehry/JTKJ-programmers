@@ -1,4 +1,5 @@
 #include "uart.h"
+#include "interface.h"
 
 #include <string.h>
 #include <pico/stdlib.h>
@@ -17,6 +18,8 @@
 void send_message() {
   printf("%s", g_state.currentMessage);
   strcpy(g_state.messageHistory[g_state.messageHistorySize].message, g_state.currentMessage);
+  g_state.messageHistory[g_state.messageHistorySize].sender = 0;
+  g_state.messageHistory[g_state.messageHistorySize].message_size = strlen(g_state.currentMessage);
   g_state.messageHistorySize++;
   g_state.currentMessage[0] = 0;
   g_state.currentMessageSize = 0;
@@ -33,6 +36,7 @@ void receive_task(void *arg) {
     //  https://www.raspberrypi.com/documentation/pico-sdk/runtime.html#group_pico_stdio_1ga5d24f1a711eba3e0084b6310f6478c1a
     //  take one char per time and store it in line array, until reeceived the
     //  \n The application should instead play a sound, or blink a LED.
+    /*
     int c = getchar_timeout_us(0);
     if (c != PICO_ERROR_TIMEOUT) { // I have received a character
       if (c == '\r')
@@ -53,9 +57,10 @@ void receive_task(void *arg) {
       }
     } else {
       vTaskDelay(pdMS_TO_TICKS(100)); // Wait for new message
-    }
+    }*/
+
     // OPTION 2. Use the whole buffer.
-    /*absolute_time_t next = delayed_by_us(get_absolute_time,500);//Wait 500 us
+    absolute_time_t next = delayed_by_us(get_absolute_time(), 500);//Wait 500 us
     int read = stdio_get_until(line,INPUT_BUFFER_SIZE,next);
     if (read == PICO_ERROR_TIMEOUT){
         vTaskDelay(pdMS_TO_TICKS(100)); // Wait for new message
@@ -63,7 +68,12 @@ void receive_task(void *arg) {
     else {
         line[read] = '\0'; //Last character is 0
         printf("__[RX] \"%s\"\n__", line);
+        strcpy(g_state.messageHistory[g_state.messageHistorySize].message, line);
+         g_state.messageHistory[g_state.messageHistorySize].sender = 1;
+         g_state.messageHistory[g_state.messageHistorySize].message_size = strlen(line);
+         g_state.messageHistorySize++;
+         update_interface();
         vTaskDelay(pdMS_TO_TICKS(50));
-    }*/
+    }
   }
 }

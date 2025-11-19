@@ -28,7 +28,7 @@ static void add_char_to_message(char character) {
 void imu_task(void *pvParameters) {
     (void)pvParameters;
 
-    float ax, ay, az, gx, gy, gz;
+    float ax, ay, az, gx, gy, gz, t;
     // Setting up the sensor. 
     if (init_ICM42670() == 0) {
         printf("ICM-42670P initialized successfully!\n");
@@ -45,9 +45,9 @@ void imu_task(void *pvParameters) {
     bool x_cooldown = false, y_cooldown = false;
     while (1)
     {
-        if (ICM42670_read_sensor_data(&ax, &ay, &az, &gx, &gy, &gz) == 0) {
+        if (ICM42670_read_sensor_data(&ax, &ay, &az, &gx, &gy, &gz, &t) == 0) {
             TickType_t now = xTaskGetTickCount();
-            printf("Accel: X=%f, Y=%f, Z=%f | Gyro: X=%f, Y=%f, Z=%f| Temp: %2.2f°C\n", ax, ay, az, gx, gy, gz);
+            printf("Accel: X=%f, Y=%f, Z=%f | Gyro: X=%f, Y=%f, Z=%f| Temp: %2.2f°C\n", ax, ay, az, gx, gy, gz, t);
 
             // Not proud of this code but it works
             if(gx > MOTION_MAGNITUDE) {
