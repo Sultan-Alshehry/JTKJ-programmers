@@ -183,7 +183,7 @@ static void display_chat() {
     }
 
     // Print current message
-    ssd1306_draw_string(get_display(), 0, 52, 1, current_message);
+    ssd1306_draw_string(get_display(), 3, 52, 1, current_message);
 
     ssd1306_show(get_display());
 }
