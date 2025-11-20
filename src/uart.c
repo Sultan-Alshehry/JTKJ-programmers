@@ -1,4 +1,5 @@
 #include "uart.h"
+#include "buzzer.h"
 #include "interface.h"
 
 #include <string.h>
@@ -23,6 +24,7 @@ void send_message() {
   g_state.messageHistorySize++;
   g_state.currentMessage[0] = 0;
   g_state.currentMessageSize = 0;
+  play_sound(MESSAGE_RECEIVED);
 }
 
 void receive_task(void *arg) {
@@ -44,6 +46,7 @@ void receive_task(void *arg) {
          g_state.messageHistory[g_state.messageHistorySize].message_size = strlen(line);
          g_state.messageHistorySize++;
          update_interface();
+         play_sound(MESSAGE_RECEIVED);
         vTaskDelay(pdMS_TO_TICKS(50));
     }
   }
