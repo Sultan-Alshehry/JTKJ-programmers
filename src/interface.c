@@ -114,12 +114,14 @@ void button_press(uint8_t button) {
     else {
         switch(selected_menu) {
             case 0:
-                set_status(INPUT);
+                g_state.useUART = false;
                 play_sound(MESSAGE_RECEIVED);
+                set_status(INPUT);
                 break;
             case 1:
-                //set_status(WAITING_INPUT);
-                play_sound(MESSAGE_SENT);
+                g_state.useUART = true;
+                play_sound(MESSAGE_RECEIVED);
+                set_status(INPUT);
                 break;
             default:
                 //set_status(MAIN_MENU);
