@@ -61,11 +61,21 @@ void add_message_to_history(char *message, uint8_t sender) {
     strcpy(message_struct->message, message);
     message_struct->sender = sender;
 
+    // Save the translated message in the struct so that it doesnt have to be calculated each time
+    morse_to_text(message, message_struct->translated_message);
+
     // Set message length
     message_struct->message_size = strlen(message);
 
     g_state.messageHistorySize++;
+    
+    update_interface_message_history();
     update_interface();
+}
+
+void clear_message_history() {
+    g_state.messageHistorySize = 0;
+    update_interface_message_history();
 }
 
 

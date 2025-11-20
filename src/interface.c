@@ -18,6 +18,14 @@
 #define TEXT_Y_MUT             16
 #define TEXT_SMALL_Y_MUT       8
 
+#define MENU_ITEM_NUM 3
+#define SETTINGS_ITEM_NUM 3
+
+#define CHAT_LINES_MAX       6
+#define CHAT_CUR_MESSAGE_MAX   20
+#define CHAT_MESSAGE_MAX       18
+
+
 static char menu[3][12] = {
 "USB",
 "UART",
@@ -30,7 +38,13 @@ static char settings[3][14] = {
 "Exit"
 };
 
-static volatile uint8_t selected_menu = 0;
+static volatile uint8_t interface_index = 0;
+
+// Store the total amount of lines for the displayed messages.
+// Used for scrolling up in the chat interface
+static volatile uint8_t history_lines = 0;
+// How many lines each message has
+static uint8_t message_lines[MSG_LIST_SIZE];
 
 static bool update = true;
 
@@ -84,7 +98,7 @@ static void display_menu() {
     char message[16];
     for(uint8_t i = 0; i < MENU_ITEM_NUM; i++) {
         message[0] = '\0';
-        if(i == selected_menu) {
+        if(i == interface_index) {
             strcat(message, "> ");
         }
         strcat(message, menu[i]);
@@ -99,7 +113,7 @@ static void display_settings() {
     char setting[16];
     for(uint8_t i = 0; i < SETTINGS_ITEM_NUM; i++) {
         setting[0] = '\0';
-        if(i == selected_menu) {
+        if(i == interface_index) {
             strcat(setting, "> ");
         }
         strcat(setting, settings[i]);
@@ -117,38 +131,37 @@ static void display_settings() {
 static void display_chat() {
     clear_display();
 
-    // Print Message History
-    int history_lines = 0;
-    for(int i = 0; i < g_state.messageHistorySize; i++) {
+    char sender[3] = {'?', ':', '\0'};
+    int empty_lines = MIN(history_lines, CHAT_LINES_MAX)+1;
+
+    // Print Message History in reverse order in order to make sure they fit on the screen
+    for(int i = g_state.messageHistorySize-1 - interface_index; i >= 0; i--) {
+
+        empty_lines -= message_lines[i];
+        if(empty_lines <= 0)
+        break;
+
         // Get message from history
         char *message = g_state.messageHistory[i].message;
-        int message_size = g_state.messageHistory[i].message_size;
 
-        // Translate the message if its enabled in settings
+        // Get translated version if its enabled in settings
         if(g_state.settings.display_type == 1) {
-            morse_to_text(message, translationBuffer);
-            message = translationBuffer;
-            message_size = strlen(message);
+            message = g_state.messageHistory[i].translated_message;
         }
 
-        int y = history_lines*TEXT_SMALL_Y_MUT;
+        // Calculate y coordinate
+        int y = (empty_lines-1) * TEXT_SMALL_Y_MUT;
 
         // Print the sender id
-        char sender[3] = {'0'+g_state.messageHistory[i].sender, ':', '\0'};
+        sender[0] = '0'+g_state.messageHistory[i].sender;
         ssd1306_draw_string(get_display(), 0, y, 1, sender);
         
         // Print the message on multiple lines if its too long
-        if(message_size > CHAT_MESSAGE_MAX) {
+        if(message_lines[i] != 1) {
             char line[CHAT_MESSAGE_MAX+1];
-
-            uint8_t lines = message_size/(float)CHAT_MESSAGE_MAX;
-            if(message_size % CHAT_MESSAGE_MAX != 0) lines++;
-
-            history_lines += lines;
-
-            for(int j = 0; j < lines; j++) {
+            for(int j = 0; j < message_lines[i]; j++) {
                 int start = j * CHAT_MESSAGE_MAX;
-                int len = j == lines-1 ? message_size - start : CHAT_MESSAGE_MAX;
+                int len = j == message_lines[i]-1 ? strlen(message) - start : CHAT_MESSAGE_MAX;
                 memcpy(line, &message[start], len);
                 line[len] = '\0';
                 ssd1306_draw_string(get_display(), 16, y+(j*TEXT_SMALL_Y_MUT), 1, line);
@@ -157,7 +170,6 @@ static void display_chat() {
         // Print the message normally if its short enough
         else {
             ssd1306_draw_string(get_display(), 16, y, 1, message);
-            history_lines++;
         }
     }
 
@@ -180,30 +192,40 @@ void button_press(uint8_t button, bool hold) {
     // Main Menu
     if(get_status() == MAIN_MENU) {
         if(button == 1) {
-           selected_menu = (selected_menu+1)%MENU_ITEM_NUM;
+           interface_index = (interface_index+1)%MENU_ITEM_NUM;
         }
         else {
-            switch(selected_menu) {
+            switch(interface_index) {
                 case 0:
-                    g_state.useUART = false;
+                    // Delete chat history if mode is switched
+                    if(g_state.useUART != false) {
+                        g_state.useUART = false;
+                        g_state.messageHistorySize = 0;
+                        clear_message_history();
+                    }
                     play_sound(MENU_SOUND);
                     set_status(INPUT);
                     break;
                 case 1:
-                    g_state.useUART = true;
+                    // Delete chat history if mode is switched
+                    if(g_state.useUART != true) {
+                        g_state.useUART = true;
+                        clear_message_history();
+                    }
                     play_sound(MENU_SOUND);
                     set_status(INPUT);
                     break;
                 case 2:
                     play_sound(MENU_SOUND);
-                    selected_menu = 0;
+                    interface_index = 0;
                     set_status(SETTINGS);
                     break;
                 default:
-                    //set_status(MAIN_MENU);
-                    play_sound(MUSIC);
+                    play_sound(ERROR_SOUND);
                     break;
             }
+            // Reset interface index for the next menu
+            interface_index = 0;
         }
     }
 
@@ -213,14 +235,15 @@ void button_press(uint8_t button, bool hold) {
         if(button == 1) {
             if(hold) {
                 play_sound(MENU_SOUND);
+                interface_index = 0;
                 set_status(MAIN_MENU);
             }
             else {
-                selected_menu = (selected_menu+1)%SETTINGS_ITEM_NUM;
+                interface_index = (interface_index+1)%SETTINGS_ITEM_NUM;
             }
         }
         else {
-            switch(selected_menu) {
+            switch(interface_index) {
                 case 0:
                     play_sound(MENU_SOUND);
                     g_state.settings.display_type = !g_state.settings.display_type;
@@ -231,7 +254,7 @@ void button_press(uint8_t button, bool hold) {
                     break;
                 case 2:
                     play_sound(MENU_SOUND);
-                    selected_menu = 2;
+                    interface_index = 2;
                     set_status(MAIN_MENU);
                     break;
             }
@@ -246,9 +269,8 @@ void button_press(uint8_t button, bool hold) {
             // Check if the current message is empty or the input is a button hold
             // If it is, exit to main menu
             if(g_state.currentMessageSize == 0 || hold) {
+                interface_index = 0;
                 set_status(MAIN_MENU);
-                // Delete message history
-                g_state.messageHistorySize = 0;
             }
             else {
                 // Delete one character from the current message
@@ -258,7 +280,20 @@ void button_press(uint8_t button, bool hold) {
         }
         // Button 2 logic
         else {
-            send_message();
+            // If button 2 is held, send the current message
+            if(hold) {
+                send_message();
+                // Scroll back down
+                interface_index = 0;
+            }
+            // If button 2 is pressed, scroll up in chat history if there are any hidden lines. Once the top is reached, go back to 0
+            else {
+                if(history_lines > CHAT_LINES_MAX) {
+                    interface_index = (interface_index+1);
+                    if(interface_index > history_lines-CHAT_LINES_MAX)
+                        interface_index = 0;
+                }
+            }
         }
     }
 
@@ -267,5 +302,27 @@ void button_press(uint8_t button, bool hold) {
 }
 
 void update_interface() {
-update = true;
+    update = true;
+}
+
+void update_interface_message_history() {
+    history_lines = 0;
+    for(int i = 0; i < g_state.messageHistorySize; i++) {
+
+        // Get message from history
+        char *message = g_state.settings.display_type == 0 ? g_state.messageHistory[i].message : g_state.messageHistory[i].translated_message;
+        int message_size = strlen(message);
+        
+        // Message is longer than one line
+        if(message_size > CHAT_MESSAGE_MAX) {
+            message_lines[i] = message_size/(float)CHAT_MESSAGE_MAX;
+            if(message_size % CHAT_MESSAGE_MAX != 0) message_lines[i]++;
+        }
+        // Message is only one line
+        else
+            message_lines[i] = 1;
+        
+        history_lines += message_lines[i];
+    }
+    interface_index = 0;
 }

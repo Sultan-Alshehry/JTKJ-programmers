@@ -25,6 +25,7 @@ typedef struct {
     uint8_t sender;
     int message_size;
     char message[MSG_BUFFER_SIZE];
+    char translated_message[MSG_BUFFER_SIZE/2 + 1];
 } Message;
 
 typedef struct {
@@ -48,6 +49,8 @@ void set_status(Status new_status);
 Status get_status();
 
 void add_message_to_history(char *message, uint8_t sender);
+
+void clear_message_history();
 
 void morse_to_text(const char *morseInput, char *result);
 

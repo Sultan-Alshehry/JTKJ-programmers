@@ -12,8 +12,6 @@
 #include "tkjhat/sdk.h"
 #include "state.h"
 
-#define DEFAULT_STACK_SIZE 2048
-
 #define INPUT_BUFFER_SIZE 256
 
 void init_uart() {
@@ -25,7 +23,8 @@ void init_uart() {
 }
 
 void send_message() {
-  play_sound(MESSAGE_RECEIVED);
+  play_sound(MESSAGE_SENT);
+
   if(g_state.useUART) {
     for(int i = 0; i < g_state.currentMessageSize; i++) {
       uart_putc(uart0, g_state.currentMessage[i]);
@@ -33,7 +32,7 @@ void send_message() {
     uart_putc(uart0, '\n');
   }
   else {
-    printf("MSG: %s", g_state.currentMessage);
+    printf("0: \"%s\"\n", g_state.currentMessage);
   }
   add_message_to_history(g_state.currentMessage, 0);
   g_state.currentMessage[0] = 0;
@@ -66,36 +65,41 @@ void receive_task(void *arg) {
         receive = true;
       }
     }
-    if (receive){// I have received a character
+    if (receive){ // I have received a character
+      
+      // If this is the first character, set status to RECEIVING to stop IMU task and play a sound
+      if(get_status() != RECEIVING) {
         set_status(RECEIVING);
-        if (c == '\r') continue; // ignore CR, wait for LF if (ch == '\n') { line[len] = '\0';
-        if (c == '\n'){
-            // terminate and process the collected line
-            play_sound(MESSAGE_RECEIVED);
-            line[index] = '\0'; 
-            printf("__[RX]:\"%s\"__\n", line); //Print as debug in the output
-            index = 0;
+        play_sound(MESSAGE_RECEIVED);
+      }
+
+      if (c == '\r') continue; // ignore CR, wait for LF if (ch == '\n') { line[len] = '\0';
+      if (c == '\n'){
+          // terminate and process the collected line
+          line[index] = '\0'; 
+          printf("1: \"%s\"__\n", line); //Print as debug in the output
+          index = 0;
                 
-            add_message_to_history(line, 1);
-            vTaskDelay(pdMS_TO_TICKS(100)); // Wait for new message
-        }
-        else if(index < INPUT_BUFFER_SIZE - 1){
-            line[index++] = (char)c;
-            vTaskDelay(pdMS_TO_TICKS(100));
-        }
-        else { //Overflow: print and restart the buffer with the new character. 
-            play_sound(MESSAGE_RECEIVED);
-            line[INPUT_BUFFER_SIZE - 1] = '\0';
-            printf("__[RX]:\"%s\"__\n", line);
-            add_message_to_history(line, 1);
-            index = 0; 
-            line[index++] = (char)c; 
-            vTaskDelay(pdMS_TO_TICKS(100));
-        }
-        set_status(INPUT);
+          add_message_to_history(line, 1);
+
+          // Set status back to INPUT
+          set_status(INPUT);
+
+          vTaskDelay(pdMS_TO_TICKS(200)); // Wait for new message
+      }
+      else if(index < INPUT_BUFFER_SIZE - 1){
+          line[index++] = (char)c;
+      }
+      else { //Overflow: print and restart the buffer with the new character. 
+          line[INPUT_BUFFER_SIZE - 1] = '\0';
+          printf("__[RX]:\"%s\"__\n", line);
+          add_message_to_history(line, 1);
+          index = 0; 
+          line[index++] = (char)c; 
+      }
     }
     else {
-        vTaskDelay(pdMS_TO_TICKS(100)); // Wait for new message
+        vTaskDelay(pdMS_TO_TICKS(300)); // Wait for new message
     }
   }
 }
