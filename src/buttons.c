@@ -57,7 +57,7 @@ void button_check() {
 
             else {
                 if(was_pressed[i]) {
-                    if(now - cooldown[i] >= pdMS_TO_TICKS(BTN_COOLDOWN_MS)) {
+                    if(last_press[i] != 0 && now - cooldown[i] >= pdMS_TO_TICKS(BTN_COOLDOWN_MS)) {
                         button_press(i, false);
                         cooldown[i] = now;
                         last_press[i] = 0;
@@ -74,7 +74,7 @@ void button_check() {
             if(was_pressed[i] && last_press[i] != 0 && now - last_press[i] >= pdMS_TO_TICKS(BTN_HOLD_MS)) {
                     button_press(i, true);
                     last_press[i] = 0;
-                    was_pressed[i] = false;
+                    cooldown[i] = now;
             }
         }
     }
