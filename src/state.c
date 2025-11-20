@@ -14,6 +14,7 @@ void state_init() {
     //state_mutex = xSemaphoreCreateMutex();
     g_state.status = MAIN_MENU;
     g_state.messageHistorySize = 0;
+    g_state.settings.debug = true;
 }
 
 

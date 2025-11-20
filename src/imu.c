@@ -2,6 +2,7 @@
 
 #include <pico/stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -12,10 +13,15 @@
 #include "interface.h"
 #include "uart.h"
 
-#define BUFFER_SIZE 100
-#define MOTION_TIME_MS 100
-#define MOTION_MAGNITUDE 100
-#define MOTION_STILL 50
+#define BUFFER_SIZE        100
+#define TASK_DELAY         200
+
+#define MOTION_MAGNITUDE   40
+#define MOTION_TIME_MS     50
+#define COOLDOWN_MS        700
+
+#define DOMINANCE_F        1.3f
+#define ALPHA              0.25f
 
 
 static void add_char_to_message(char character) {
@@ -25,82 +31,101 @@ static void add_char_to_message(char character) {
     update_interface();
 }
 
+static int get_dominant_axis(float *data) {
+    float ax = fabsf(data[0]), ay = fabsf(data[1]), az = fabsf(data[2]);
+
+    if (ax > ay * DOMINANCE_F && ax > az * DOMINANCE_F) return 0;
+    else if (ay > ax * DOMINANCE_F && ay > az * DOMINANCE_F) return 1;
+    else if (az > ay * DOMINANCE_F && az > ax * DOMINANCE_F) return 2;
+
+    return -1;
+}
+
+static void gesture(int8_t *command) {
+    printf("GESTURE %d\n", *command);
+    switch(*command) {
+        case 1:
+            add_char_to_message('-');
+            play_sound(LINE_SOUND);
+            break;
+        case -1:
+            add_char_to_message('.');
+            play_sound(DOT_SOUND);
+            break;
+        case 3:
+            add_char_to_message(' ');
+            break;
+        case -3:
+            send_message();
+            update_interface();
+            play_sound(MESSAGE_SENT);
+            break;
+        default:
+            break;
+    }
+}
+
 void imu_task(void *pvParameters) {
     (void)pvParameters;
 
-    float ax, ay, az, gx, gy, gz, t;
+    float temp;
+
+    float accel[3] = {0}, filt_accel[3] = {0};
+
+    float gyro[3] = {0}, filt_gyro[3] = {0};
+
+    float delta_accel[3] = {0};
+
     // Setting up the sensor. 
-    if (init_ICM42670() == 0) {
-        printf("ICM-42670P initialized successfully!\n");
-        if (ICM42670_start_with_default_values() != 0){
-            printf("ICM-42670P could not initialize accelerometer or gyroscope");
-        }
-    } else {
-        printf("Failed to initialize ICM-42670P.\n");
-    }
+
     // Start collection data here. Infinite loop. 
-    TickType_t motion_time[2] = {0, 0};
-    uint8_t command[2] = {0, 0};
-
-    bool x_cooldown = false, y_cooldown = false;
-    while (1)
-    {
-        if (ICM42670_read_sensor_data(&ax, &ay, &az, &gx, &gy, &gz, &t) == 0) {
-            TickType_t now = xTaskGetTickCount();
-            printf("Accel: X=%f, Y=%f, Z=%f | Gyro: X=%f, Y=%f, Z=%f\n", ax, ay, az, gx, gy, gz);
-
-            // Not proud of this code but it works
-            if(gx > MOTION_MAGNITUDE) {
-                motion_time[0] = now;
-                command[0] = 1;
-            }
-            else if(gx < -MOTION_MAGNITUDE) {
-                motion_time[0] = now;
-                command[0] = 2;
-            }
-            else if (-MOTION_STILL < gx && gx < MOTION_STILL) {
-
-                // Check if a movememnt was detected and if its longer than MOTION_TIME_MS
-                if(motion_time[0] != 0 && now - motion_time[0] >= pdMS_TO_TICKS(MOTION_TIME_MS)) {
-                    if(command[0] == 1) {
-                        add_char_to_message('.');
-                        play_sound(DOT_SOUND);
-                    }
-                    else {
-                        add_char_to_message('-');
-                        play_sound(LINE_SOUND);
-                    }
-                }
-                motion_time[0] = 0;
-
-                // Same checks for z axis
-                if(gz > MOTION_MAGNITUDE) {
-                    motion_time[1] = now;
-                    command[1] = 1;
-                }
-                else if(gz < -MOTION_MAGNITUDE) {
-                    motion_time[1] = now;
-                    command[1] = 2;
-                }
-                else if (-MOTION_STILL < gz && gz < MOTION_STILL) {
-
-                    // Check if a movememnt was detected and if its longer than MOTION_TIME_MS
-                    if(motion_time[1] != 0 && now - motion_time[1] >= pdMS_TO_TICKS(MOTION_TIME_MS)) {
-                        if(command[1] == 2) {
-                            add_char_to_message(' ');
-                        }
-                        else {
-                            send_message();
-                            update_interface();
-                        }
-                    }
-                    motion_time[1] = 0;
-                }
-            }
-
-        } else {
-            printf("Failed to read imu data\n");
+    TickType_t cooldown = 0;
+    int8_t command = 0;
+    while (1) {
+        if(get_status() == RECEIVING) {
+            vTaskDelay(500);
+            continue;
         }
-        vTaskDelay(pdMS_TO_TICKS(250));
+        if (ICM42670_read_sensor_data(&accel[0], &accel[1], &accel[2], &gyro[0], &gyro[1], &gyro[2], &temp) != 0) {
+            printf("Failed to read imu data\n");
+            vTaskDelay(pdMS_TO_TICKS(TASK_DELAY));
+            continue;
+        }
+
+        // Apply Exponential Moving Average (EMA) to remove noise
+        for(int i = 0; i < 3; i++) {
+            delta_accel[i] = filt_accel[i];
+            filt_accel[i] = ALPHA * accel[i] + (1.0f - ALPHA) * filt_accel[i];
+            delta_accel[i] = filt_accel[i] - delta_accel[i];
+
+            filt_gyro[i] = ALPHA * gyro[i] + (1.0f - ALPHA) * filt_gyro[i];
+        }
+
+
+        if(g_state.settings.debug) {
+        printf("Accel: X=%f, Y=%f, Z=%f | Gyro: X=%f, Y=%f, Z=%f, temp:%f\n",
+            filt_accel[0], filt_accel[1], filt_accel[2], filt_gyro[0], filt_gyro[1], filt_gyro[2], temp);
+        }
+
+        int axis = get_dominant_axis(filt_gyro);
+        TickType_t now = xTaskGetTickCount();
+
+        if(cooldown != 0) {
+            if(now - cooldown >= pdMS_TO_TICKS(COOLDOWN_MS))
+                cooldown = 0;
+            else {
+                vTaskDelay(pdMS_TO_TICKS(TASK_DELAY));
+                continue;
+            }
+        }
+        
+        if(axis != -1) {
+            if(fabsf(filt_gyro[axis]) > MOTION_MAGNITUDE) {
+                command = (axis+1) * (filt_gyro[axis] < 0 ? -1 : 1);
+                cooldown = now;
+                gesture(&command);
+            }
+        }
+        vTaskDelay(pdMS_TO_TICKS(TASK_DELAY));
     }
 }
