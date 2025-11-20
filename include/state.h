@@ -8,10 +8,9 @@
 #define MSG_LIST_SIZE 16
 
 typedef enum {
-    MAIN_MENU,
+    MENU,
     INPUT,
-    RECEIVING,
-    SETTINGS
+    RECEIVING
 } Status;
 
 typedef struct {

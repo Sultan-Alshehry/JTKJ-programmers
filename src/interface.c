@@ -25,8 +25,13 @@
 #define CHAT_CUR_MESSAGE_MAX   20
 #define CHAT_MESSAGE_MAX       18
 
+typedef enum {
+    MAIN_MENU,
+    SETTINGS,
+    CHAT
+} Menu;
 
-static char menu[3][12] = {
+static char main_menu[3][12] = {
 "USB",
 "UART",
 "Settings"
@@ -38,6 +43,7 @@ static char settings[3][14] = {
 "Exit"
 };
 
+static volatile Menu menu;
 static volatile uint8_t interface_index = 0;
 
 // Store the total amount of lines for the displayed messages.
@@ -62,23 +68,22 @@ void display_task(void *arg) {
     button_init();
     printf("__Initializing display__\n");
 
+    menu = MAIN_MENU;
+
     while(1) {
         // button_check will block the task for 500ms if no button is pressed.
         button_check();
         if(update) {
             update = false;
-            switch(get_status()) {
+            switch(menu) {
                 case MAIN_MENU:
                     display_menu();
                     break;
-                case INPUT:
-                    // Stop input while updating the screen by setting status to RECEIVING
-                    set_status(RECEIVING);
+                case CHAT:
+                    // Stop input while updating the screen by setting status to MENU
+                    set_status(MENU);
                     display_chat();
                     set_status(INPUT);
-                    break;
-                case RECEIVING:
-                    display_chat();
                     break;
                 case SETTINGS:
                     display_settings();
@@ -101,7 +106,7 @@ static void display_menu() {
         if(i == interface_index) {
             strcat(message, "> ");
         }
-        strcat(message, menu[i]);
+        strcat(message, main_menu[i]);
         ssd1306_draw_string(get_display(), 0, i*TEXT_Y_MUT, 2, message);
     }
     ssd1306_show(get_display());
@@ -190,7 +195,7 @@ static void display_chat() {
 
 void button_press(uint8_t button, bool hold) {
     // Main Menu
-    if(get_status() == MAIN_MENU) {
+    if(menu == MAIN_MENU) {
         if(button == 1) {
            interface_index = (interface_index+1)%MENU_ITEM_NUM;
         }
@@ -204,6 +209,7 @@ void button_press(uint8_t button, bool hold) {
                         clear_message_history();
                     }
                     play_sound(MENU_SOUND);
+                    menu = CHAT;
                     set_status(INPUT);
                     break;
                 case 1:
@@ -213,12 +219,13 @@ void button_press(uint8_t button, bool hold) {
                         clear_message_history();
                     }
                     play_sound(MENU_SOUND);
+                    menu = CHAT;
                     set_status(INPUT);
                     break;
                 case 2:
                     play_sound(MENU_SOUND);
                     interface_index = 0;
-                    set_status(SETTINGS);
+                    menu = SETTINGS;
                     break;
                 default:
                     play_sound(ERROR_SOUND);
@@ -231,12 +238,12 @@ void button_press(uint8_t button, bool hold) {
 
 
     // Settings Menu
-    else if(get_status() == SETTINGS) {
+    else if(menu == SETTINGS) {
         if(button == 1) {
             if(hold) {
                 play_sound(MENU_SOUND);
                 interface_index = 0;
-                set_status(MAIN_MENU);
+                menu = MAIN_MENU;
             }
             else {
                 interface_index = (interface_index+1)%SETTINGS_ITEM_NUM;
@@ -255,7 +262,7 @@ void button_press(uint8_t button, bool hold) {
                 case 2:
                     play_sound(MENU_SOUND);
                     interface_index = 2;
-                    set_status(MAIN_MENU);
+                    menu = MAIN_MENU;
                     break;
             }
         }
@@ -263,7 +270,7 @@ void button_press(uint8_t button, bool hold) {
 
 
     // Chat Interface
-    else if(get_status() == RECEIVING || get_status() == INPUT) {
+    else if(menu == CHAT) {
         // Button 1 logic
         if(button == 1) {
             // Check if the current message is empty or the input is a button hold
@@ -272,7 +279,8 @@ void button_press(uint8_t button, bool hold) {
                 interface_index = 0;
                 g_state.currentMessageSize = 0;
                 g_state.currentMessage[0] = '\0';
-                set_status(MAIN_MENU);
+                set_status(MENU);
+                menu = MAIN_MENU;
             }
             else {
                 // Delete one character from the current message

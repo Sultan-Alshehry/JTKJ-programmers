@@ -106,6 +106,7 @@ void imu_task(void *pvParameters) {
             vTaskDelay(300);
             continue;
         }
+        
         if (ICM42670_read_sensor_data(&accel[0], &accel[1], &accel[2], &gyro[0], &gyro[1], &gyro[2], &temp) != 0) {
             printf("__Failed to read imu data__\n");
             vTaskDelay(pdMS_TO_TICKS(TASK_DELAY));
