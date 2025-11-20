@@ -39,11 +39,13 @@ void buzzer_task(void *arg) {
                     buzzer_play_tone (400, 200);
                     vTaskDelay(pdMS_TO_TICKS(200));
                     buzzer_play_tone (600, 200);
+                    vTaskDelay(pdMS_TO_TICKS(200));
                     break;
                 case MESSAGE_SENT:
                     buzzer_play_tone (800, 50);
                     vTaskDelay(pdMS_TO_TICKS(80));
                     buzzer_play_tone (300, 100);
+                    vTaskDelay(pdMS_TO_TICKS(100));
                     break;
                 case MUSIC:
                     for (int i=0 ; i<10; i++){
@@ -53,14 +55,18 @@ void buzzer_task(void *arg) {
                     break;
                 case DOT_SOUND:
                     buzzer_play_tone (800, 50);
+                    vTaskDelay(pdMS_TO_TICKS(50));
                     break;
                 case LINE_SOUND:
                     buzzer_play_tone (500, 200);
+                    vTaskDelay(pdMS_TO_TICKS(200));
                     break;
+                case MENU_SOUND:
+                    buzzer_play_tone (800, 50);
+                    vTaskDelay(pdMS_TO_TICKS(50));
                 default:
                     break;
             }
-            vTaskDelay(pdMS_TO_TICKS(50));
             g_state.playing_music = false;
         }
         vTaskDelay(pdMS_TO_TICKS(200));

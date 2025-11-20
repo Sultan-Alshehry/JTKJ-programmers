@@ -3,7 +3,8 @@ typedef enum {
     MESSAGE_SENT,
     MUSIC,
     DOT_SOUND,
-    LINE_SOUND
+    LINE_SOUND,
+    MENU_SOUND
 } Sound;
 
 void buzzer_task(void *arg);

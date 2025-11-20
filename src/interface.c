@@ -131,7 +131,7 @@ static void display_chat() {
     ssd1306_show(get_display());
 }
 
-void button_press(uint8_t button) {
+void button_press(uint8_t button, bool hold) {
     // Main Menu
     if(get_status() == MAIN_MENU) {
         if(button == 1) {
@@ -141,16 +141,16 @@ void button_press(uint8_t button) {
             switch(selected_menu) {
                 case 0:
                     g_state.useUART = false;
-                    play_sound(MESSAGE_RECEIVED);
+                    play_sound(MENU_SOUND);
                     set_status(INPUT);
                     break;
                 case 1:
                     g_state.useUART = true;
-                    play_sound(MESSAGE_RECEIVED);
+                    play_sound(MENU_SOUND);
                     set_status(INPUT);
                     break;
                 case 2:
-                    play_sound(MESSAGE_RECEIVED);
+                    play_sound(MENU_SOUND);
                     set_status(SETTINGS);
                     selected_menu = 0;
                     break;
@@ -166,17 +166,23 @@ void button_press(uint8_t button) {
     // Settings Menu
     else if(get_status() == SETTINGS) {
         if(button == 1) {
-            selected_menu = (selected_menu+1)%SETTINGS_ITEM_NUM;
+            if(hold) {
+                play_sound(MENU_SOUND);
+                set_status(MAIN_MENU);
+            }
+            else {
+                selected_menu = (selected_menu+1)%SETTINGS_ITEM_NUM;
+            }
         }
         else {
             switch(selected_menu) {
                 case 0:
-                play_sound(MESSAGE_RECEIVED);
-                g_state.settings.display_type = !g_state.settings.display_type;
-                break;
+                    play_sound(MENU_SOUND);
+                    g_state.settings.display_type = !g_state.settings.display_type;
+                    break;
                 case 1:
-                play_sound(MESSAGE_RECEIVED);
-                g_state.settings.debug = !g_state.settings.debug;
+                    play_sound(MENU_SOUND);
+                    g_state.settings.debug = !g_state.settings.debug;
             }
         }
     }
