@@ -11,7 +11,7 @@
 #include "tkjhat/sdk.h"
 #include "interface.h"
 
-#define BUTTONS            2
+#define BUTTONS     2
 
 #define BTN_HOLD_MS 200
 
