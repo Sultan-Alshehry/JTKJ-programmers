@@ -11,8 +11,8 @@
 
 QueueHandle_t queue;
 
-int melody[] = {1318, 1174, 1318, 1174, 1318, 880, 988, 1046, 988, 880};
-float durations[] = {250, 250, 250, 250, 250, 250, 250, 250, 250, 250};
+int melody[] = {1318, 1318, 1000};
+float durations[] = {250, 250, 250};
 
 void play_sound(Sound sound){
     xQueueSend(queue, &sound, portMAX_DELAY);
