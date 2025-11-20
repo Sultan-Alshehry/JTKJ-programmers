@@ -11,8 +11,8 @@
 #include "state.h"
 #include "buzzer.h"
 
-#define DEFAULT_I2C_SDA_PIN   12
-#define DEFAULT_I2C_SCL_PIN   13
+#define MENU_ITEM_NUM 3
+#define SETTINGS_ITEM_NUM 3
 
 #define TEXT_X                 8
 #define TEXT_SELECTED_X        36
@@ -26,9 +26,10 @@ static char menu[3][12] = {
 "Settings"
 };
 
-static char settings[2][14] = {
+static char settings[3][14] = {
 "DISPLAY TYPE:",
-"DEBUG:"
+"DEBUG:",
+"Exit"
 };
 
 static volatile uint8_t selected_menu = 0;
@@ -83,7 +84,7 @@ static void display_menu() {
     clear_display();
     uint32_t x = TEXT_X;
     char message[16];
-    for(uint8_t i = 0; i < 3; i++) {
+    for(uint8_t i = 0; i < MENU_ITEM_NUM; i++) {
         message[0] = '\0';
         if(i == selected_menu) {
             strcat(message, "> ");
@@ -98,7 +99,7 @@ static void display_settings() {
     clear_display();
     uint32_t x = TEXT_X;
     char setting[16];
-    for(uint8_t i = 0; i < 2; i++) {
+    for(uint8_t i = 0; i < SETTINGS_ITEM_NUM; i++) {
         setting[0] = '\0';
         if(i == selected_menu) {
             strcat(setting, "> ");
@@ -107,7 +108,7 @@ static void display_settings() {
         if(i == 0) {
             strcat(setting, g_state.settings.display_type ? " TEXT" : " MORSE");
         }
-        else {
+        else if(i == 1) {
             strcat(setting, g_state.settings.debug ? " on" : " off");
         }
         ssd1306_draw_string(get_display(), 0, i*TEXT_Y_MUT, 1, setting);
@@ -139,7 +140,7 @@ void button_press(uint8_t button, bool hold) {
     // Main Menu
     if(get_status() == MAIN_MENU) {
         if(button == 1) {
-           selected_menu = (selected_menu+1)%3;
+           selected_menu = (selected_menu+1)%MENU_ITEM_NUM;
         }
         else {
             switch(selected_menu) {
@@ -187,6 +188,12 @@ void button_press(uint8_t button, bool hold) {
                 case 1:
                     play_sound(MENU_SOUND);
                     g_state.settings.debug = !g_state.settings.debug;
+                    break;
+                case 2:
+                    play_sound(MENU_SOUND);
+                    selected_menu = 2;
+                    set_status(MAIN_MENU);
+                    break;
             }
         }
     }
