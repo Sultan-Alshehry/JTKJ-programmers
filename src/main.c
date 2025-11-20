@@ -42,16 +42,14 @@ int main() {
 
   state_init();
 
-  // Set up IMU
-  init_imu();
-
   sleep_ms(300); // Wait some time so initialization of USB and hat is done.
 
   TaskHandle_t displayTask, buzzerTask, receiveTask, imuTask;
   // Create the tasks with xTaskCreate
+  BaseType_t result;
 
   // Buzzer task
-  BaseType_t result = xTaskCreate(buzzer_task, // (en) Task function
+  result = xTaskCreate(buzzer_task, // (en) Task function
                        "buzzer",    // (en) Name of the task
                        1024, // (en) Size of the stack for this task (in words).
                              // Generally 1024 or 2048
@@ -60,7 +58,7 @@ int main() {
                        &buzzerTask);
 
   // Display task
-  result = xTaskCreate(display_task, "display", DEFAULT_STACK_SIZE, NULL, 3,
+  result = xTaskCreate(display_task, "display", DEFAULT_STACK_SIZE, NULL, 2,
                        &displayTask);
 
   if (result != pdPASS) {
@@ -76,7 +74,7 @@ int main() {
     return 0;
   }
 
-  result = xTaskCreate(imu_task, "imuTask", DEFAULT_STACK_SIZE, NULL, 2,
+  result = xTaskCreate(imu_task, "imuTask", DEFAULT_STACK_SIZE, NULL, 3,
                        &imuTask);
 
   if (result != pdPASS) {

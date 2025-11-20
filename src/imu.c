@@ -84,6 +84,11 @@ static void gesture(int8_t *command) {
 void imu_task(void *pvParameters) {
     (void)pvParameters;
 
+    // Setting up the sensor. 
+    init_imu();
+
+    vTaskDelay(pdMS_TO_TICKS(200));
+
     float temp;
 
     float accel[3] = {0}, filt_accel[3] = {0};
@@ -92,7 +97,6 @@ void imu_task(void *pvParameters) {
 
     float delta_accel[3] = {0};
 
-    // Setting up the sensor. 
 
     // Start collection data here. Infinite loop. 
     TickType_t cooldown = 0;
