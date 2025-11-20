@@ -30,6 +30,9 @@ static volatile uint8_t selected_menu = 0;
 
 static bool update = true;
 
+static char translationBuffer[MSG_BUFFER_SIZE];
+
+
 static void display_menu();
 static void display_chat();
 
@@ -49,6 +52,8 @@ void display_task(void *arg) {
                     display_menu();
                     break;
                 case INPUT:
+                    display_chat();
+                    break;
                 case RECEIVING:
                     display_chat();
                     break;
@@ -79,7 +84,6 @@ static void display_menu() {
 
 static void display_chat() {
     clear_display();
-    char translationBuffer[MSG_BUFFER_SIZE];
     for(int i = 0; i < g_state.messageHistorySize; i++) {
         char *message = g_state.messageHistory[i].message;
         if(g_state.settings.DISPLAY_TYPE == 1) {
@@ -92,11 +96,10 @@ static void display_chat() {
         else {
             ssd1306_draw_string(get_display(), 0, i*TEXT_SMALL_Y_MUT, 1, message);
         }
-        
-        ssd1306_draw_empty_square(get_display(), 0, 50, 127, 13);
-        ssd1306_draw_string(get_display(), 0, 52, 1, g_state.currentMessage);
-        ssd1306_show(get_display());
     }
+    ssd1306_draw_empty_square(get_display(), 0, 50, 127, 13);
+    ssd1306_draw_string(get_display(), 0, 52, 1, g_state.currentMessage);
+    ssd1306_show(get_display());
 }
 
 void button_press(uint8_t button) {

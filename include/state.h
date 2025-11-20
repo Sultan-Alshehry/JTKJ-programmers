@@ -33,6 +33,7 @@ typedef struct {
     Message messageHistory[MSG_LIST_SIZE];
     int messageHistorySize;
     bool useUART;
+    bool playing_music;
     Settings settings;
 } State;
 

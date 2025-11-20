@@ -8,6 +8,7 @@
 #include <queue.h>
 
 #include "tkjhat/sdk.h"
+#include "state.h"
 
 QueueHandle_t queue;
 
@@ -26,12 +27,13 @@ void buzzer_task(void *arg) {
     printf("Initializing buzzer\n");
     queue = xQueueCreate(5,sizeof(Sound));
 
-    play_sound(MESSAGE_RECEIVED);
+    play_sound(MUSIC);
 
     while(1){
 
         Sound nextSound;
         if (xQueueReceive(queue, &nextSound, portMAX_DELAY) == pdPASS) {
+            g_state.playing_music = true;
             switch (nextSound) {
                 case MESSAGE_RECEIVED:
                     buzzer_play_tone (400, 200);
@@ -54,9 +56,12 @@ void buzzer_task(void *arg) {
                     break;
                 case LINE_SOUND:
                     buzzer_play_tone (500, 200);
+                    break;
                 default:
                     break;
             }
+            vTaskDelay(pdMS_TO_TICKS(50));
+            g_state.playing_music = false;
         }
         vTaskDelay(pdMS_TO_TICKS(200));
     }

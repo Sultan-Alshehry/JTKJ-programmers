@@ -82,8 +82,8 @@ void imu_task(void *pvParameters) {
     TickType_t cooldown = 0;
     int8_t command = 0;
     while (1) {
-        if(get_status() == RECEIVING) {
-            vTaskDelay(500);
+        if(get_status() != INPUT || g_state.playing_music) {
+            vTaskDelay(300);
             continue;
         }
         if (ICM42670_read_sensor_data(&accel[0], &accel[1], &accel[2], &gyro[0], &gyro[1], &gyro[2], &temp) != 0) {
