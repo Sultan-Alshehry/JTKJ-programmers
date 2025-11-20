@@ -23,6 +23,16 @@
 #define DOMINANCE_F        1.3f
 #define ALPHA              0.25f
 
+void init_imu() {
+    if (init_ICM42670() == 0) {
+        printf("ICM-42670P initialized successfully!\n");
+        if (ICM42670_start_with_default_values() != 0){
+            printf("ICM-42670P could not initialize accelerometer or gyroscope");
+        }
+    } else {
+        printf("Failed to initialize ICM-42670P.\n");
+    }
+}
 
 static void add_char_to_message(char character) {
     g_state.currentMessage[g_state.currentMessageSize] = character;
@@ -42,7 +52,6 @@ static int get_dominant_axis(float *data) {
 }
 
 static void gesture(int8_t *command) {
-    printf("GESTURE %d\n", *command);
     switch(*command) {
         case 1:
             add_char_to_message('-');

@@ -10,6 +10,7 @@
 #include "buttons.h"
 #include "state.h"
 #include "buzzer.h"
+#include "uart.h"
 
 #define MENU_ITEM_NUM 3
 #define SETTINGS_ITEM_NUM 3
@@ -199,10 +200,26 @@ void button_press(uint8_t button, bool hold) {
     }
 
 
-    // Default Logic
-    else {
+    // Chat Interface
+    else if(get_status() == RECEIVING || get_status() == INPUT) {
+        // Button 1 logic
         if(button == 1) {
-            set_status(MAIN_MENU);
+            // Check if the current message is empty or the input is a button hold
+            // If it is, exit to main menu
+            if(g_state.currentMessageSize == 0 || hold) {
+                set_status(MAIN_MENU);
+                // Delete message history
+                g_state.messageHistorySize = 0;
+            }
+            else {
+                // Delete one character from the current message
+                g_state.currentMessageSize--;
+                g_state.currentMessage[g_state.currentMessageSize] = '\0';
+            }
+        }
+        // Button 2 logic
+        else {
+            send_message();
         }
     }
 
