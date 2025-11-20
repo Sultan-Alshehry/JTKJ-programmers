@@ -105,7 +105,7 @@ static void display_settings() {
         }
         strcat(setting, settings[i]);
         if(i == 0) {
-            strcat(setting, g_state.settings.display_type ? " MORSE" : " TEXT");
+            strcat(setting, g_state.settings.display_type ? " TEXT" : " MORSE");
         }
         else {
             strcat(setting, g_state.settings.debug ? " on" : " off");
