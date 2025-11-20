@@ -31,7 +31,7 @@ typedef enum {
     CHAT
 } Menu;
 
-static char main_menu[3][12] = {
+static char main_menu[3][8] = {
 "USB",
 "UART",
 "Settings"
