@@ -21,13 +21,14 @@
 #define TEXT_SCALE             2
 
 static char menu[3][12] = {
-    "USB",
-    "UART",
-    "Settings"
+"USB",
+"UART",
+"Settings"
 };
 
-static char settings[3][12] = {
-    "DISPLAY TYPE"
+static char settings[2][14] = {
+"DISPLAY TYPE:",
+"DEBUG:"
 };
 
 static volatile uint8_t selected_menu = 0;
@@ -94,25 +95,25 @@ static void display_settings() {
     clear_display();
     uint32_t x = TEXT_X;
     char setting[16];
-    for(uint8_t i = 0; i < 3; i++) {
+    for(uint8_t i = 0; i < 2; i++) {
         setting[0] = '\0';
         if(i == selected_menu) {
             strcat(setting, "> ");
         }
-        strcat(setting, menu[i]);
-        if (g_state.settings.display_type){
-            strcat(setting, " MORSE");
+        strcat(setting, settings[i]);
+        if(i == 0) {
+            strcat(setting, g_state.settings.display_type ? " MORSE" : " TEXT");
         }
         else {
-            strcat(setting, " TEXT");
+            strcat(setting, g_state.settings.debug ? " on" : " off");
         }
-        ssd1306_draw_string(get_display(), 0, i*TEXT_Y_MUT, TEXT_SCALE, setting);
+        ssd1306_draw_string(get_display(), 0, i*TEXT_Y_MUT, 1, setting);
     }
 }
 
 static void display_chat() {
-clear_display();
-for(int i = 0; i < g_state.messageHistorySize; i++) {
+    clear_display();
+    for(int i = 0; i < g_state.messageHistorySize; i++) {
     char *message = g_state.messageHistory[i].message;
     if(g_state.settings.display_type == 1) {
         morse_to_text(message, translationBuffer);
@@ -124,17 +125,17 @@ for(int i = 0; i < g_state.messageHistorySize; i++) {
     else {
         ssd1306_draw_string(get_display(), 0, i*TEXT_SMALL_Y_MUT, 1, message);
     }
-}
-ssd1306_draw_empty_square(get_display(), 0, 50, 127, 13);
-ssd1306_draw_string(get_display(), 0, 52, 1, g_state.currentMessage);
-ssd1306_show(get_display());
+    }
+    ssd1306_draw_empty_square(get_display(), 0, 50, 127, 13);
+    ssd1306_draw_string(get_display(), 0, 52, 1, g_state.currentMessage);
+    ssd1306_show(get_display());
 }
 
 void button_press(uint8_t button) {
     // Main Menu
     if(get_status() == MAIN_MENU) {
         if(button == 1) {
-            selected_menu = (selected_menu+1)%3;
+           selected_menu = (selected_menu+1)%3;
         }
         else {
             switch(selected_menu) {
@@ -148,6 +149,11 @@ void button_press(uint8_t button) {
                     play_sound(MESSAGE_RECEIVED);
                     set_status(INPUT);
                     break;
+                case 2:
+                    play_sound(MESSAGE_RECEIVED);
+                    set_status(SETTINGS);
+                    selected_menu = 0;
+                    break;
                 default:
                     //set_status(MAIN_MENU);
                     play_sound(MUSIC);
@@ -158,21 +164,27 @@ void button_press(uint8_t button) {
 
 
     // Settings Menu
-    else if(get_status == SETTINGS) {
-
+    else if(get_status() == SETTINGS) {
+        if(button == 1) {
+            selected_menu = (selected_menu+1)%SETTINGS_ITEM_NUM;
+        }
+        else {
+            switch(selected_menu) {
+                case 0:
+                play_sound(MESSAGE_RECEIVED);
+                g_state.settings.display_type = !g_state.settings.display_type;
+                break;
+                case 1:
+                play_sound(MESSAGE_RECEIVED);
+                g_state.settings.debug = !g_state.settings.debug;
+            }
+        }
     }
+
 
     // Default Logic
     else {
         if(button == 1) {
-            set_status(MAIN_MENU);
-        }
-    }
-    if(button == 1) {
-        if(get_status() == MAIN_MENU) {
-            selected_menu = (selected_menu+1)%3;
-        }
-        else {
             set_status(MAIN_MENU);
         }
     }

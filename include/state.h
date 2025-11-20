@@ -6,6 +6,8 @@
 
 #define MSG_BUFFER_SIZE 256
 #define MSG_LIST_SIZE 16
+#define MENU_ITEM_NUM 3
+#define SETTINGS_ITEM_NUM 2
 
 typedef enum {
     MAIN_MENU,
