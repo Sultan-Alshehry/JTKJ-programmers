@@ -9,13 +9,14 @@
 
 typedef enum {
     MAIN_MENU,
-    UART,
-    WIFI
+    INPUT,
+    RECEIVING
 } Status;
 
 typedef struct {
     // 0 = morse, 1 = text
     bool DISPLAY_TYPE;
+    bool debug;
 } Settings;
 
 typedef struct {
@@ -31,6 +32,7 @@ typedef struct {
     int currentMessageSize;
     Message messageHistory[MSG_LIST_SIZE];
     int messageHistorySize;
+    bool useUART;
     Settings settings;
 } State;
 

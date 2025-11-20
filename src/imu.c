@@ -82,6 +82,10 @@ void imu_task(void *pvParameters) {
     TickType_t cooldown = 0;
     int8_t command = 0;
     while (1) {
+        if(get_status() == RECEIVING) {
+            vTaskDelay(500);
+            continue;
+        }
         if (ICM42670_read_sensor_data(&accel[0], &accel[1], &accel[2], &gyro[0], &gyro[1], &gyro[2], &temp) != 0) {
             printf("Failed to read imu data\n");
             vTaskDelay(pdMS_TO_TICKS(TASK_DELAY));
@@ -98,10 +102,10 @@ void imu_task(void *pvParameters) {
         }
 
 
+        if(g_state.settings.debug) {
         printf("Accel: X=%f, Y=%f, Z=%f | Gyro: X=%f, Y=%f, Z=%f, temp:%f\n",
             filt_accel[0], filt_accel[1], filt_accel[2], filt_gyro[0], filt_gyro[1], filt_gyro[2], temp);
-
-        //printf("Accel: X:%f, Y:%f, Z:%f\n", delta_accel[0], delta_accel[1], delta_accel[2]);
+        }
 
         int axis = get_dominant_axis(filt_gyro);
         TickType_t now = xTaskGetTickCount();
