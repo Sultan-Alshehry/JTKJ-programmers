@@ -14,6 +14,11 @@ typedef enum {
 } Status;
 
 typedef struct {
+    // 0 = morse, 1 = text
+    bool DISPLAY_TYPE;
+} Settings;
+
+typedef struct {
     // 0 you 1 other person
     bool sender;
     int message_size;
@@ -26,6 +31,7 @@ typedef struct {
     int currentMessageSize;
     Message messageHistory[MSG_LIST_SIZE];
     int messageHistorySize;
+    Settings settings;
 } State;
 
 // Global variable for the state
