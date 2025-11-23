@@ -46,7 +46,7 @@ const char* morse_table[] = {
     ".....", "-....", "--...", "---..", "----.",
 };
 
-void add_message_to_history(char *message, uint8_t sender) {
+void add_message_to_history(char *message, bool sender) {
     // Check if the message history is full.
     // If it is full delete the first message and move everything back 1 index.
     if(g_state.messageHistorySize == MSG_LIST_SIZE) {
