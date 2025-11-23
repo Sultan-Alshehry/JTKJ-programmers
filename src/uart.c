@@ -73,7 +73,7 @@ void receive_task(void *arg) {
       if(uart_is_readable(uart0)) {
         c = uart_getc(uart0);
 
-        // Prevent reading if no character is sending
+        // Prevent reading if no character is being sent
         if(get_status() == RECEIVING || c != 0) {
           receive = true;
         }
@@ -119,7 +119,6 @@ void receive_task(void *arg) {
           else if ((char)c == ' '){
             play_sound(SPACE_SOUND);
           }
-          //vTaskDelay(400);
       }
       else { //Overflow: print and restart the buffer with the new character. 
           line[INPUT_BUFFER_SIZE - 1] = '\0';
