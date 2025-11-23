@@ -23,7 +23,7 @@ void init_uart() {
 }
 
 void send_message() {
-  if(get_status() != INPUT){
+  if(get_status() != INPUT) {
     return;
   }
   set_status(OUTPUT);
@@ -87,7 +87,7 @@ void receive_task(void *arg) {
         receive = true;
       }
     }
-    if (receive){ // I have received a character
+    if (receive) { // I have received a character
       
       // If this is the first character, set status to RECEIVING to stop IMU task and play a sound
       if(get_status() != RECEIVING) {
@@ -96,7 +96,7 @@ void receive_task(void *arg) {
       }
 
       if (c == '\r') continue; // ignore CR, wait for LF if (ch == '\n') { line[len] = '\0';
-      if (c == '\n'){
+      if (c == '\n') {
           // terminate and process the collected line
           line[index] = '\0'; 
           //printf("__[RX]:\"%s\"__\n", line); //Print as debug in the output
@@ -108,7 +108,7 @@ void receive_task(void *arg) {
           set_status(INPUT);
 
       }
-      else if(index < INPUT_BUFFER_SIZE - 1){
+      else if(index < INPUT_BUFFER_SIZE - 1) {
           line[index++] = (char)c;
           if ((char)c == '.'){
             play_sound(DOT_SOUND);
