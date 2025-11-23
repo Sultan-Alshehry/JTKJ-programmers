@@ -194,8 +194,10 @@ void imu_task(void *pvParameters) {
         }
 
         // If the debug option is enabled in the settings, print the filtered data from the IMU
-        debug("__Accel: X=%f, Y=%f, Z=%f | Gyro: X=%f, Y=%f, Z=%f, temp:%f__\n",
-                filt_accel[0], filt_accel[1], filt_accel[2], filt_gyro[0], filt_gyro[1], filt_gyro[2], temp);
+        if(g_state.settings.debug) {
+            printf("__Accel: X=%f, Y=%f, Z=%f | Gyro: X=%f, Y=%f, Z=%f, temp:%f__\n",
+                    filt_accel[0], filt_accel[1], filt_accel[2], filt_gyro[0], filt_gyro[1], filt_gyro[2], temp);
+        }
 
         int axis = get_dominant_axis(filt_gyro);
 

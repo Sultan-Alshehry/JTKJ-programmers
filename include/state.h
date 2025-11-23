@@ -54,7 +54,7 @@ extern State g_state;
  * Print a message using `printf` only if the `debug` option is enabled in the settings
  * @param message The message to print
  */
-void debug(const char* message);
+void debug(char* message);
 
 // Initate the default values for the global state
 void state_init();
