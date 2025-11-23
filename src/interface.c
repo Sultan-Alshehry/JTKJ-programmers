@@ -32,15 +32,15 @@ typedef enum {
 } Menu;
 
 static char main_menu[3][8] = {
-"USB",
-"UART",
-"Settings"
+    "USB",
+    "UART",
+    "Settings"
 };
 
 static char settings[3][14] = {
-"DISPLAY TYPE:",
-"DEBUG:",
-"Exit"
+    "DISPLAY TYPE:",
+    "DEBUG:",
+    "Exit"
 };
 
 static volatile Menu menu;

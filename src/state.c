@@ -89,22 +89,61 @@ char morse_to_char(const char *morse) {
     return '?';
 }
 
-void morse_to_text(const char *morse_input, char *result) {
+void morse_to_text_simple(const char *morse_input, char *result) {
     result[0] = '\0';
-    char buffer[500];
-    strcpy(buffer, morse_input);
+    
+    int i = 0;
+    char current_morse[10];
+    int morse_index = 0;
+    int prev_was_space = 0;
 
-    char *token = strtok(buffer, " ");
-    while (token != NULL) {
-        if (strcmp(token, "/") == 0) {
-            strcat(result, " ");
+    while (morse_input[i] != '\0') {
+        if (morse_input[i] == ' ') {
+            // Process completed morse sequence
+            if (morse_index > 0) {
+                current_morse[morse_index] = '\0';
+                char ch = morse_to_char(current_morse);
+                
+                // Add single space when there are 2 spaces
+                if (prev_was_space) {
+                    strcat(result, " ");
+                }
+                
+                strcat(result, (char[]){ch, '\0'});
+                prev_was_char = 1;
+                prev_was_space = 0;
+                morse_index = 0;
+            }
+            
+            // Mark that we encountered a space
+            prev_was_space = 1;
+        } else if (morse_input[i] == '/') {
+            // Word separator - add two spaces
+            if (strlen(result) > 0) {
+                strcat(result, "  ");
+            }
+            prev_was_char = 0;
+            prev_was_space = 0;
         } else {
-            char ch = morse_to_char(token);
-            int len = strlen(result);
-            result[len] = ch;
-            result[len + 1] = '\0';
+            // Morse character
+            if (prev_was_space && strlen(result) > 0) {
+                // Single space was already between letters, no extra space needed
+                prev_was_space = 0;
+            }
+            current_morse[morse_index++] = morse_input[i];
         }
-        token = strtok(NULL, " ");
+        i++;
+    }
+
+    // Process last morse sequence
+    if (morse_index > 0) {
+        current_morse[morse_index] = '\0';
+        char ch = morse_to_char(current_morse);
+        
+        if (prev_was_char) {
+            strcat(result, " ");
+        }
+        
+        strcat(result, (char[]){ch, '\0'});
     }
 }
-
