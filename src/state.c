@@ -10,7 +10,7 @@
 State g_state;
 
 
-void debug(const char* message) {
+void debug(char* message) {
     if(g_state.settings.debug) 
         printf(message);
 }
@@ -24,7 +24,10 @@ void state_init() {
 
 
 void set_status(Status new_status) {
+    // Ensure tasks do not try to change the status at the same time
+    taskENTER_CRITICAL();
     g_state.status = new_status;
+    taskEXIT_CRITICAL();
 }
 
 Status get_status() {
