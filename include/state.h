@@ -10,6 +10,7 @@
 typedef enum {
     MENU,
     INPUT,
+    OUTPUT,
     RECEIVING
 } Status;
 
