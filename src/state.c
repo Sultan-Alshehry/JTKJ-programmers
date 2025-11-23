@@ -122,6 +122,18 @@ void morse_to_text(const char *morse_input, char *result) {
             prev_was_space = 0;
             current_morse[morse_index++] = morse_input[i];
 
+            // Check if current morse chracter is too big, just replace it with a ? and go to the next character or the end of the message
+            if(morse_index >= 9) {
+                strcat(result, "?");
+                while(morse_input[i] != ' ' && morse_input[i+1] != '\0') {
+                    i++;
+                }
+                i++;
+                prev_was_space = 0;
+                morse_index = 0;
+                continue;
+            }
+
             // Check for messages that do not follow the proper message structure (ending with '  \n')
             if(morse_input[i+1] == '\0') {
                 i--;
