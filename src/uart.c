@@ -23,6 +23,10 @@ void init_uart() {
 }
 
 void send_message() {
+  if(get_status() != INPUT){
+    return;
+  }
+  set_status(OUTPUT);
   if(g_state.currentMessageSize == 0) {
     play_sound(ERROR_SOUND);
     return;
@@ -44,6 +48,7 @@ void send_message() {
   add_message_to_history(g_state.currentMessage, 0);
   g_state.currentMessage[0] = 0;
   g_state.currentMessageSize = 0;
+  set_status(INPUT);
 }
 
 void receive_task(void *arg) {
