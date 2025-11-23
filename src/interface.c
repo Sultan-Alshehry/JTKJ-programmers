@@ -1,3 +1,4 @@
+// by Radu and Sultan
 #include "interface.h"
 
 #include <stdio.h>
@@ -13,11 +14,13 @@
 #include "buzzer.h"
 #include "uart.h"
 
+// text location
 #define TEXT_X                 8
 #define TEXT_SELECTED_X        36
 #define TEXT_Y_MUT             16
 #define TEXT_SMALL_Y_MUT       8
 
+// number of menu items
 #define MENU_ITEM_NUM 3
 #define SETTINGS_ITEM_NUM 3
 
@@ -25,18 +28,21 @@
 #define CHAT_CUR_MESSAGE_MAX   20
 #define CHAT_MESSAGE_MAX       18
 
+// states nested in the menu state
 typedef enum {
     MAIN_MENU,
     SETTINGS,
     CHAT
 } Menu;
 
+// main menu options
 static char main_menu[3][8] = {
     "USB",
     "UART",
     "Settings"
 };
 
+// setting options
 static char settings[3][14] = {
     "DISPLAY TYPE:",
     "DEBUG:",
@@ -65,9 +71,9 @@ static bool exit_to_main_menu();
 void display_task(void *arg) {
     (void)arg;
 
+    //initialize display and buttons
     init_display();
     button_init();
-    printf("__Initializing display__\n");
 
     menu = MAIN_MENU;
 
@@ -109,10 +115,12 @@ static void display_menu() {
     char message[16];
     for(uint8_t i = 0; i < MENU_ITEM_NUM; i++) {
         message[0] = '\0';
+        // show pointing arrow to selected item
         if(i == interface_index) {
             strcat(message, "> ");
         }
         strcat(message, main_menu[i]);
+        // display the menu option
         ssd1306_draw_string(get_display(), 0, i*TEXT_Y_MUT, 2, message);
     }
     ssd1306_show(get_display());
@@ -125,15 +133,19 @@ static void display_settings() {
     for(uint8_t i = 0; i < SETTINGS_ITEM_NUM; i++) {
         setting[0] = '\0';
         if(i == interface_index) {
+            // show pointing arrow to selected item
             strcat(setting, "> ");
         }
         strcat(setting, settings[i]);
         if(i == 0) {
+            // show current mode
             strcat(setting, g_state.settings.display_type ? " TEXT" : " MORSE");
         }
         else if(i == 1) {
+            // show current mode
             strcat(setting, g_state.settings.debug ? " on" : " off");
         }
+        // display the menu option
         ssd1306_draw_string(get_display(), 0, i*TEXT_Y_MUT, 1, setting);
     }
     ssd1306_show(get_display());
@@ -246,6 +258,7 @@ void button_press(uint8_t button, bool hold) {
 
     // Settings Menu
     else if(menu == SETTINGS) {
+        // return to main menu by holding button 1
         if(button == 1) {
             if(hold) {
                 play_sound(MENU_SOUND);
@@ -341,9 +354,11 @@ void update_interface_message_history() {
 }
 
 static bool exit_to_main_menu() {
+    // don't quit if currently receiving
     if(get_status() == RECEIVING) {
         return false;
     }
+    // reset current message
     g_state.currentMessageSize = 0;
     g_state.currentMessage[0] = '\0';
     set_status(MENU);
