@@ -22,7 +22,7 @@ typedef struct {
 
 typedef struct {
     // 0 you 1 other person
-    uint8_t sender;
+    bool sender;
     int message_size;
     char message[MSG_BUFFER_SIZE];
     char translated_message[MSG_BUFFER_SIZE/2 + 1];
@@ -48,7 +48,7 @@ void set_status(Status new_status);
 
 Status get_status();
 
-void add_message_to_history(char *message, uint8_t sender);
+void add_message_to_history(char *message, bool sender);
 
 void clear_message_history();
 
