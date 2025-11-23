@@ -12,11 +12,11 @@
 
 QueueHandle_t queue;
 
-int melody[] = {1318, 1318, 1000};
-float duration = 250;
-
 int up_melody[] = {500, 600, 700, 800, 900, 1000, 1100, 1200};
 int down_melody[] = {1200, 1100, 1000, 900, 800, 700, 600, 500};
+
+int melody[] = {1318, 1318, 1318, 1100, 1318, 1500, 1000};
+float durations[] = {250, 250, 250, 250, 250, 300, 300};
 
 void play_sound(Sound sound){
     xQueueSend(queue, &sound, portMAX_DELAY);
@@ -50,18 +50,18 @@ void buzzer_task(void *arg) {
                     break;
                 case MUSIC:
                     for (int i=0 ; i<10; i++){
-                        buzzer_play_tone (melody[i], duration);
-                        vTaskDelay(pdMS_TO_TICKS(200));
+                        buzzer_play_tone (melody[i], durations[i]);
+                        vTaskDelay(pdMS_TO_TICKS(durations[i]));
                     }
                 case UP_MUSIC:
                     for (int i=0 ; i<10; i++){
-                        buzzer_play_tone (up_melody[i], duration);
+                        buzzer_play_tone (up_melody[i], 200);
                         vTaskDelay(pdMS_TO_TICKS(200));
                     break;
                     }
                 case DOWN_MUSIC:
                     for (int i=0 ; i<10; i++){
-                        buzzer_play_tone (down_melody[i], duration);
+                        buzzer_play_tone (down_melody[i], 200);
                         vTaskDelay(pdMS_TO_TICKS(200));
                     }
                 case DOT_SOUND:
