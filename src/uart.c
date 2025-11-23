@@ -1,3 +1,4 @@
+// by Sultan
 #include "uart.h"
 #include "buzzer.h"
 #include "interface.h"
@@ -12,7 +13,7 @@
 #include "tkjhat/sdk.h"
 #include "state.h"
 
-#define INPUT_BUFFER_SIZE 256
+#define INPUT_BUFFER_SIZE 128
 
 void init_uart() {
   uart_init(uart0, 115200);
@@ -23,6 +24,7 @@ void init_uart() {
 }
 
 void send_message() {
+  // only send when in input state
   if(get_status() != INPUT) {
     return;
   }
@@ -34,20 +36,26 @@ void send_message() {
   
   play_sound(MESSAGE_SENT);
 
+
   if(g_state.useUART) {
+    // if useuart is true send the message using uart
     for(int i = 0; i < g_state.currentMessageSize; i++) {
       uart_putc(uart0, g_state.currentMessage[i]);
     }
+    // end message with two spcaes and new line
     uart_putc(uart0, ' ');
     uart_putc(uart0, ' ');
     uart_putc(uart0, '\n');
   }
   else {
+    // send message normally
     printf("%s  \n", g_state.currentMessage);
   }
+  // add message to history and reset current message
   add_message_to_history(g_state.currentMessage, 0);
   g_state.currentMessage[0] = 0;
   g_state.currentMessageSize = 0;
+  // return to INPUT state
   set_status(INPUT);
 }
 
@@ -99,7 +107,6 @@ void receive_task(void *arg) {
       if (c == '\n') {
           // terminate and process the collected line
           line[index] = '\0'; 
-          //printf("__[RX]:\"%s\"__\n", line); //Print as debug in the output
           index = 0;
                 
           add_message_to_history(line, 1);
@@ -108,6 +115,7 @@ void receive_task(void *arg) {
           set_status(INPUT);
 
       }
+      // play appropriate sound when recieving a character
       else if(index < INPUT_BUFFER_SIZE - 1) {
           line[index++] = (char)c;
           if ((char)c == '.'){
@@ -119,11 +127,9 @@ void receive_task(void *arg) {
           else if ((char)c == ' '){
             play_sound(SPACE_SOUND);
           }
-          //vTaskDelay(400);
       }
       else { //Overflow: print and restart the buffer with the new character. 
           line[INPUT_BUFFER_SIZE - 1] = '\0';
-          printf("__[RX]:\"%s\"__\n", line);
           add_message_to_history(line, 1);
           index = 0; 
       }
